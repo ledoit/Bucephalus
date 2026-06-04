@@ -1,0 +1,59 @@
+# Starter concept — edit numbers as you measure real packaging.
+name: bucephalus_v0
+wheelbase_mm: 2480
+track_front_mm: 1580
+track_rear_mm: 1560
+target_curb_mass_kg: 1180
+target_range_km: 320
+ice_efficiency: 0.38
+consumption_lge_100km: 11.5
+
+engine:
+  preset: lamborghini_5.2_v10_reference
+  target_power_kw: 449
+  # Custom block: drop preset and set mass_kg, length_mm, width_mm, height_mm
+
+bay:
+  max_lateral_mm: 760
+  max_fore_aft_mm: 680
+  max_height_mm: 720
+  lateral_clearance_mm: 35
+  fore_aft_clearance_mm: 45
+  vertical_clearance_mm: 25
+
+storage:
+  # No trunk, no frunk — only structural voids you actually have room for.
+  tunnel_volume_l: 42
+  underfloor_volume_l: 28
+  seat_back_volume_l: 12
+  tanks:
+    - label: tunnel_center_700bar
+      volume_l: 38
+      pressure_bar: 700
+    - label: underfloor_rear_700bar
+      volume_l: 24
+      pressure_bar: 700
+
+mass_lines:
+  - label: monocoque_and_body
+    mass_kg: 185
+    cg_x_mm: 1200
+    cg_z_mm: 380
+  - label: suspension_corners
+    mass_kg: 142
+  - label: transaxle_and_shafts
+    mass_kg: 95
+    cg_x_mm: 1400
+  - label: h2_tanks_dry
+    mass_kg: 68
+    cg_z_mm: 220
+  - label: h2_injection_and_rails
+    mass_kg: 18
+  - label: cooling_and_exhaust
+    mass_kg: 32
+  - label: interior_and_hvac
+    mass_kg: 48
+  - label: electrical_12v
+    mass_kg: 22
+  - label: fluids_and_fuel_system
+    mass_kg: 12
