@@ -111,11 +111,11 @@ export function buildSceneMeshes(
   }
 
   for (const m of data.markers) {
-    const geo = new SphereGeometry(m.radius_mm, 20, 16);
+    const geo = new SphereGeometry(m.radius_mm, 12, 10);
     const mat = new MeshBasicMaterial({
       color: new Color(m.color),
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.85,
     });
     addMesh(
       root,
@@ -125,7 +125,7 @@ export function buildSceneMeshes(
       undefined,
       m.id,
       m.label,
-      undefined,
+      "markers",
       disposables,
     );
   }

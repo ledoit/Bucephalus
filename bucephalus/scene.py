@@ -72,9 +72,8 @@ def layout_from_spec(spec: VehicleSpec) -> VehicleLayout:
     wheel_r = max(280.0, wb * 0.133)
     body_len = wb * 1.72
     body_h = max(1050.0, wb * 0.46)
-    # Mid-rear: bay sits aft of cabin center, above tunnel.
-    bay_x = -0.14 * wb
-    bay_z = wheel_r + spec.bay.max_height_mm * 0.42
+    bay_x = -0.12 * body_len
+    bay_z = wheel_r + 220.0
     return VehicleLayout(
         body_length_mm=body_len,
         body_width_mm=track + 100.0,
@@ -107,62 +106,6 @@ def _volume_l_to_cylinder_mm(
     return r, length
 
 
-def _v10_detail_primitives(
-    env_source: str,
-    env_w: float,
-    env_l: float,
-    env_h: float,
-    center: tuple[float, float, float],
-    fits: bool,
-) -> list[BoxPrimitive]:
-    """Crankcase + two bank slivers + valve cover on top of transverse block."""
-    cx, cy, cz = center
-    base = "#e8a838" if fits else "#e85d5d"
-    bank_w = env_w * 0.38
-    bank_l = env_l * 0.88
-    bank_h = env_h * 0.62
-    offset_y = env_l * 0.22
-    vc_h = env_h * 0.22
-    return [
-        BoxPrimitive(
-            "engine_crankcase",
-            f"Crankcase ({env_source})",
-            "powertrain",
-            (cx, cy, cz - env_h * 0.08),
-            (env_w * 0.92, env_l * 0.55, env_h * 0.55),
-            base,
-            opacity=0.5,
-        ),
-        BoxPrimitive(
-            "engine_bank_front",
-            "Cylinder bank (fore)",
-            "powertrain",
-            (cx, cy + offset_y, cz + env_h * 0.06),
-            (bank_w, bank_l, bank_h),
-            base,
-            opacity=0.78,
-        ),
-        BoxPrimitive(
-            "engine_bank_rear",
-            "Cylinder bank (aft)",
-            "powertrain",
-            (cx, cy - offset_y, cz + env_h * 0.06),
-            (bank_w, bank_l, bank_h),
-            base,
-            opacity=0.78,
-        ),
-        BoxPrimitive(
-            "engine_valve_cover",
-            "Valve cover / intake plenum",
-            "powertrain",
-            (cx, cy, cz + env_h * 0.38),
-            (env_w * 0.7, env_l * 0.45, vc_h),
-            "#d4a017",
-            opacity=0.85,
-        ),
-    ]
-
-
 def build_scene(spec: VehicleSpec) -> dict[str, Any]:
     fit = check_transverse_fit(spec.engine, spec.bay)
     env = fit.engine
@@ -179,7 +122,6 @@ def build_scene(spec: VehicleSpec) -> dict[str, Any]:
         "name": "Sports coupe reference shell (458-class)",
         "license": "three.js examples — packaging reference only",
         "target_length_mm": lay.body_length_mm,
-        "rotation_deg": [-90, 90, 0],
         "offset_mm": [0, 0, 0],
         "opacity": 0.9,
         "replace_hint": "Upload your CAD glB in the viewer or set url to /models/custom_shell.glb",
@@ -193,88 +135,22 @@ def build_scene(spec: VehicleSpec) -> dict[str, Any]:
             (ex, ey, ez + spec.bay.max_height_mm / 2),
             (spec.bay.max_fore_aft_mm, spec.bay.max_lateral_mm, spec.bay.max_height_mm),
             "#5b8def",
-            opacity=0.15,
+            opacity=0.35,
             wireframe=True,
         ),
         BoxPrimitive(
-            "engine_envelope",
-            f"Engine envelope ({env.source})",
-            "powertrain",
-            (ex, ey, ez + env.height_mm / 2),
-            (env.width_mm, env.length_mm, env.height_mm),
-            engine_color,
-            opacity=0.2,
-            wireframe=True,
-        ),
-        BoxPrimitive(
-            "engine_required",
-            "Engine + clearances",
+            "engine_block",
+            f"V10 + clearance ({env.source})",
             "powertrain",
             (ex, ey, ez + fit.height_need_mm / 2),
             (fit.fore_aft_need_mm, fit.lateral_need_mm, fit.height_need_mm),
             engine_color,
-            opacity=0.1,
+            opacity=0.25,
             wireframe=True,
         ),
     ]
-    boxes.extend(
-        _v10_detail_primitives(
-            env.source, env.width_mm, env.length_mm, env.height_mm,
-            (ex, ey, ez + env.height_mm / 2), fit.fits,
-        )
-    )
 
     cylinders: list[CylinderPrimitive] = []
-
-    if spec.storage.tunnel_volume_l > 0:
-        r, length = _volume_l_to_cylinder_mm(spec.storage.tunnel_volume_l, 4.5)
-        length = min(length, lay.body_length_mm * 0.42)
-        cylinders.append(
-            CylinderPrimitive(
-                "packaging_tunnel",
-                f"Tunnel void ({spec.storage.tunnel_volume_l:.0f} L)",
-                "storage_void",
-                lay.tunnel_center,
-                r * 1.05,
-                length,
-                "x",
-                "#3ecf8e",
-                opacity=0.12,
-                wireframe=True,
-            )
-        )
-
-    if spec.storage.underfloor_volume_l > 0:
-        r, length = _volume_l_to_cylinder_mm(spec.storage.underfloor_volume_l, 3.2)
-        cylinders.append(
-            CylinderPrimitive(
-                "packaging_underfloor",
-                f"Underfloor void ({spec.storage.underfloor_volume_l:.0f} L)",
-                "storage_void",
-                lay.underfloor_center,
-                r * 1.1,
-                length * 0.85,
-                "x",
-                "#3ecf8e",
-                opacity=0.12,
-                wireframe=True,
-            )
-        )
-
-    if spec.storage.seat_back_volume_l > 0:
-        sz = _volume_l_to_box_mm(spec.storage.seat_back_volume_l, (0.45, 1.3, 1.1))
-        boxes.append(
-            BoxPrimitive(
-                "packaging_seat_back",
-                f"Seat-back void ({spec.storage.seat_back_volume_l:.0f} L)",
-                "storage_void",
-                lay.seat_back_center,
-                sz,
-                "#3ecf8e",
-                opacity=0.12,
-                wireframe=True,
-            )
-        )
 
     for i, cap in enumerate(storage.tanks):
         label = cap.tank.label
@@ -291,18 +167,19 @@ def build_scene(spec: VehicleSpec) -> dict[str, Any]:
                 f"{label} ({cap.geometric_l:.0f} L → {cap.mass_kg:.1f} kg H₂)",
                 "tanks",
                 center,
-                r,
-                length,
+                r * 0.85,
+                length * 0.9,
                 axis,  # type: ignore[arg-type]
                 "#2dd4bf",
-                opacity=0.7,
+                opacity=0.45,
+                wireframe=True,
             )
         )
 
     markers = [
-        Marker("cg_total", "Mass CG (budget)", (mass.cg_x_mm, mass.cg_y_mm, mass.cg_z_mm), "#fbbf24"),
-        Marker("rear_axle", "Rear axle", (-half_wb, 0.0, lay.wheel_radius_mm), "#8b95a8", 28.0),
-        Marker("front_axle", "Front axle", (half_wb, 0.0, lay.wheel_radius_mm), "#8b95a8", 28.0),
+        Marker("cg_total", "Mass CG", (mass.cg_x_mm, mass.cg_y_mm, mass.cg_z_mm), "#fbbf24", 22.0),
+        Marker("rear_axle", "Rear axle", (-half_wb, 0.0, lay.wheel_radius_mm), "#8b95a8", 16.0),
+        Marker("front_axle", "Front axle", (half_wb, 0.0, lay.wheel_radius_mm), "#8b95a8", 16.0),
     ]
 
     primitives: list[dict[str, Any]] = [asdict(p) for p in boxes] + [asdict(p) for p in cylinders]
@@ -312,9 +189,10 @@ def build_scene(spec: VehicleSpec) -> dict[str, Any]:
         "vehicle": spec.name,
         "units": "mm",
         "axes": {"x": "fore_aft", "y": "lateral", "z": "up"},
+        "overlay_mode": "minimal",
         "note": (
-            "Reference car shell scaled to wheelbase; packaging overlays from YAML. "
-            "Replace sports_shell.glb with your CAD to iterate fit."
+            "Default view: car shell only. Toggle packaging layers to see bay, engine fit, and tanks. "
+            "Overlays snap to the shell when loaded."
         ),
         "layout_source": "derived_from_spec",
         "vehicle_shell": vehicle_shell,

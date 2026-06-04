@@ -7,18 +7,14 @@
     "y": "lateral",
     "z": "up"
   },
-  "note": "Reference car shell scaled to wheelbase; packaging overlays from YAML. Replace sports_shell.glb with your CAD to iterate fit.",
+  "overlay_mode": "minimal",
+  "note": "Default view: car shell only. Toggle packaging layers to see bay, engine fit, and tanks. Overlays snap to the shell when loaded.",
   "layout_source": "derived_from_spec",
   "vehicle_shell": {
     "url": "/models/sports_shell.glb",
     "name": "Sports coupe reference shell (458-class)",
     "license": "three.js examples \u2014 packaging reference only",
     "target_length_mm": 4265.6,
-    "rotation_deg": [
-      -90,
-      90,
-      0
-    ],
     "offset_mm": [
       0,
       0,
@@ -36,9 +32,9 @@
       "label": "Engine bay IML (YAML)",
       "group": "bay",
       "center_mm": [
-        -347.20000000000005,
+        -511.872,
         0.0,
-        992.24
+        909.84
       ],
       "size_mm": [
         680.0,
@@ -46,37 +42,18 @@
         720.0
       ],
       "color": "#5b8def",
-      "opacity": 0.15,
+      "opacity": 0.35,
       "wireframe": true,
       "kind": "box"
     },
     {
-      "id": "engine_envelope",
-      "label": "Engine envelope (lamborghini_5.2_v10_reference)",
+      "id": "engine_block",
+      "label": "V10 + clearance (lamborghini_5.2_v10_reference)",
       "group": "powertrain",
       "center_mm": [
-        -347.20000000000005,
+        -511.872,
         0.0,
-        992.24
-      ],
-      "size_mm": [
-        640.0,
-        720.0,
-        720.0
-      ],
-      "color": "#e85d5d",
-      "opacity": 0.2,
-      "wireframe": true,
-      "kind": "box"
-    },
-    {
-      "id": "engine_required",
-      "label": "Engine + clearances",
-      "group": "powertrain",
-      "center_mm": [
-        -347.20000000000005,
-        0.0,
-        1004.74
+        922.34
       ],
       "size_mm": [
         685.0,
@@ -84,138 +61,9 @@
         745.0
       ],
       "color": "#e85d5d",
-      "opacity": 0.1,
+      "opacity": 0.25,
       "wireframe": true,
       "kind": "box"
-    },
-    {
-      "id": "engine_crankcase",
-      "label": "Crankcase (lamborghini_5.2_v10_reference)",
-      "group": "powertrain",
-      "center_mm": [
-        -347.20000000000005,
-        0.0,
-        934.64
-      ],
-      "size_mm": [
-        588.8000000000001,
-        396.00000000000006,
-        396.00000000000006
-      ],
-      "color": "#e85d5d",
-      "opacity": 0.5,
-      "wireframe": false,
-      "kind": "box"
-    },
-    {
-      "id": "engine_bank_front",
-      "label": "Cylinder bank (fore)",
-      "group": "powertrain",
-      "center_mm": [
-        -347.20000000000005,
-        158.4,
-        1035.44
-      ],
-      "size_mm": [
-        243.2,
-        633.6,
-        446.4
-      ],
-      "color": "#e85d5d",
-      "opacity": 0.78,
-      "wireframe": false,
-      "kind": "box"
-    },
-    {
-      "id": "engine_bank_rear",
-      "label": "Cylinder bank (aft)",
-      "group": "powertrain",
-      "center_mm": [
-        -347.20000000000005,
-        -158.4,
-        1035.44
-      ],
-      "size_mm": [
-        243.2,
-        633.6,
-        446.4
-      ],
-      "color": "#e85d5d",
-      "opacity": 0.78,
-      "wireframe": false,
-      "kind": "box"
-    },
-    {
-      "id": "engine_valve_cover",
-      "label": "Valve cover / intake plenum",
-      "group": "powertrain",
-      "center_mm": [
-        -347.20000000000005,
-        0.0,
-        1265.8400000000001
-      ],
-      "size_mm": [
-        448.0,
-        324.0,
-        158.4
-      ],
-      "color": "#d4a017",
-      "opacity": 0.85,
-      "wireframe": false,
-      "kind": "box"
-    },
-    {
-      "id": "packaging_seat_back",
-      "label": "Seat-back void (12 L)",
-      "group": "storage_void",
-      "center_mm": [
-        942.4,
-        0.0,
-        763.344
-      ],
-      "size_mm": [
-        119.33195217124585,
-        344.7367507169324,
-        291.70032752971207
-      ],
-      "color": "#3ecf8e",
-      "opacity": 0.12,
-      "wireframe": true,
-      "kind": "box"
-    },
-    {
-      "id": "packaging_tunnel",
-      "label": "Tunnel void (42 L)",
-      "group": "storage_void",
-      "center_mm": [
-        -545.6,
-        0.0,
-        181.41200000000003
-      ],
-      "radius_mm": 119.80499770205755,
-      "length_mm": 1026.8999803033503,
-      "axis": "x",
-      "color": "#3ecf8e",
-      "opacity": 0.12,
-      "wireframe": true,
-      "kind": "cylinder"
-    },
-    {
-      "id": "packaging_underfloor",
-      "label": "Underfloor void (28 L)",
-      "group": "storage_void",
-      "center_mm": [
-        297.59999999999997,
-        0.0,
-        105.54880000000001
-      ],
-      "radius_mm": 122.83875705464398,
-      "length_mm": 607.4934894338757,
-      "axis": "x",
-      "color": "#3ecf8e",
-      "opacity": 0.12,
-      "wireframe": true,
-      "kind": "cylinder"
     },
     {
       "id": "tank_0",
@@ -226,12 +74,12 @@
         0.0,
         181.41200000000003
       ],
-      "radius_mm": 106.5478215440636,
-      "length_mm": 1065.478215440636,
+      "radius_mm": 90.56564831245406,
+      "length_mm": 958.9303938965724,
       "axis": "x",
       "color": "#2dd4bf",
-      "opacity": 0.7,
-      "wireframe": false,
+      "opacity": 0.45,
+      "wireframe": true,
       "kind": "cylinder"
     },
     {
@@ -243,26 +91,26 @@
         0.0,
         105.54880000000001
       ],
-      "radius_mm": 102.95665946701926,
-      "length_mm": 720.6966162691349,
+      "radius_mm": 87.51316054696638,
+      "length_mm": 648.6269546422214,
       "axis": "x",
       "color": "#2dd4bf",
-      "opacity": 0.7,
-      "wireframe": false,
+      "opacity": 0.45,
+      "wireframe": true,
       "kind": "cylinder"
     }
   ],
   "markers": [
     {
       "id": "cg_total",
-      "label": "Mass CG (budget)",
+      "label": "Mass CG",
       "position_mm": [
         414.2357059509918,
         0.0,
         99.48658109684948
       ],
       "color": "#fbbf24",
-      "radius_mm": 45.0
+      "radius_mm": 22.0
     },
     {
       "id": "rear_axle",
@@ -273,7 +121,7 @@
         329.84000000000003
       ],
       "color": "#8b95a8",
-      "radius_mm": 28.0
+      "radius_mm": 16.0
     },
     {
       "id": "front_axle",
@@ -284,7 +132,7 @@
         329.84000000000003
       ],
       "color": "#8b95a8",
-      "radius_mm": 28.0
+      "radius_mm": 16.0
     }
   ],
   "summary": {

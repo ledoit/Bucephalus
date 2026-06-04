@@ -1,4 +1,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  anchorOverlaysToShell,
+  engineAnchorFromScene,
+} from "./lib/anchorOverlays";
 import { buildSceneMeshes } from "./lib/buildSceneMeshes";
 import { loadVehicleShell } from "./lib/loadVehicleShell";
 import type { BucephalusScene, VehicleShell } from "./lib/sceneTypes";
@@ -10,13 +14,17 @@ type LoadState =
   | { kind: "ready"; scene: BucephalusScene }
   | { kind: "error"; message: string };
 
+const OVERLAY_GROUPS = ["bay", "powertrain", "tanks", "markers"] as const;
+
 const LEGEND: { group: string; label: string }[] = [
-  { group: "shell", label: "Reference car shell (glTF)" },
-  { group: "bay", label: "Bay IML" },
-  { group: "powertrain", label: "V10 envelope + banks" },
-  { group: "storage_void", label: "H₂ packaging voids" },
-  { group: "tanks", label: "700 bar tanks (tentative)" },
+  { group: "shell", label: "Car shell (glTF)" },
+  { group: "bay", label: "Engine bay IML" },
+  { group: "powertrain", label: "V10 fit box" },
+  { group: "tanks", label: "H₂ tanks" },
+  { group: "markers", label: "CG & axles" },
 ];
+
+const DEFAULT_HIDDEN = new Set<string>(OVERLAY_GROUPS);
 
 function App() {
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -35,7 +43,10 @@ function App() {
     message: "Loading scene…",
   });
   const [showGrid, setShowGrid] = useState(true);
-  const [hiddenGroups, setHiddenGroups] = useState<Set<string>>(new Set());
+  const [hiddenGroups, setHiddenGroups] = useState<Set<string>>(
+    () => new Set(DEFAULT_HIDDEN),
+  );
+  const [shellLoaded, setShellLoaded] = useState(false);
 
   const clearContent = useCallback((host: ThreeHost) => {
     meshesRef.current?.dispose();
@@ -57,14 +68,32 @@ function App() {
       if (!host) return;
       clearContent(host);
 
+      let shellRoot: import("three").Group | null = null;
       if (data.vehicle_shell) {
-        setLoad({ kind: "loading", message: "Loading reference shell…" });
-        const { root, dispose } = await loadVehicleShell(data.vehicle_shell);
-        shellRef.current = { dispose };
-        host.contentRoot.add(root);
+        setLoad({ kind: "loading", message: "Loading car shell…" });
+        try {
+          const { root, dispose } = await loadVehicleShell(data.vehicle_shell);
+          shellRef.current = { dispose };
+          shellRoot = root;
+          host.contentRoot.add(root);
+          setShellLoaded(true);
+        } catch (e) {
+          setShellLoaded(false);
+          const msg = e instanceof Error ? e.message : String(e);
+          console.warn("Shell load failed:", msg);
+        }
+      } else {
+        setShellLoaded(false);
       }
 
       meshesRef.current = buildSceneMeshes(host, data, { fitCamera: false });
+      if (shellRoot && meshesRef.current.root) {
+        anchorOverlaysToShell(
+          meshesRef.current.root as import("three").Group,
+          shellRoot,
+          engineAnchorFromScene(data),
+        );
+      }
       host.fitCamera();
       sceneRef.current = data;
       setLoad({ kind: "ready", scene: data });
@@ -154,13 +183,25 @@ function App() {
     });
   };
 
+  const setViewPreset = (preset: "car" | "packaging" | "all") => {
+    if (preset === "car") {
+      setHiddenGroups(new Set(DEFAULT_HIDDEN));
+    } else if (preset === "packaging") {
+      setHiddenGroups(new Set(["markers"]));
+    } else {
+      setHiddenGroups(new Set());
+    }
+  };
+
   const scene = load.kind === "ready" ? load.scene : null;
   const statusText =
     load.kind === "loading"
       ? load.message
       : load.kind === "error"
         ? load.message
-        : `${scene!.vehicle} · ${scene!.summary.gates_passed ? "GO" : "NO-GO"} · Orbit: drag · Zoom: scroll`;
+        : `${scene!.vehicle} · ${scene!.summary.gates_passed ? "GO" : "NO-GO"} · ${
+            shellLoaded ? "Car shell loaded" : "Shell missing — overlays only"
+          }`;
 
   return (
     <div className="app">
@@ -176,8 +217,14 @@ function App() {
           <button type="button" onClick={() => shellInputRef.current?.click()}>
             Replace shell (glb)…
           </button>
+          <button type="button" onClick={() => setViewPreset("car")}>
+            Car only
+          </button>
+          <button type="button" onClick={() => setViewPreset("packaging")}>
+            Packaging
+          </button>
           <button type="button" onClick={() => hostRef.current?.fitCamera()}>
-            Frame scene
+            Frame
           </button>
           <label className="toggle">
             <input
@@ -223,7 +270,10 @@ function App() {
       <footer className={`status status-${load.kind}`}>{statusText}</footer>
 
       <aside className="panel">
-        <h2>Legend</h2>
+        <h2>Layers</h2>
+        <p className="muted small">
+          Start with <strong>Car only</strong>. Turn on packaging to check bay / tanks against the shell.
+        </p>
         <ul className="legend">
           {LEGEND.map(({ group, label }) => (
             <li key={group}>

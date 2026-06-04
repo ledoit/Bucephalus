@@ -1,4 +1,12 @@
-import { Box3, Group, Mesh, MeshStandardMaterial, Object3D, Vector3 } from "three";
+import {
+  Box3,
+  Group,
+  Mesh,
+  MeshStandardMaterial,
+  Object3D,
+  Quaternion,
+  Vector3,
+} from "three";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
 import type { VehicleShell } from "./sceneTypes";
@@ -19,29 +27,27 @@ function getLoader(): GLTFLoader {
   return loader;
 }
 
-/** Fit loaded mesh: mm coords, Z-up, origin = vehicle center on ground. */
-export function fitShellToLayout(
-  root: Object3D,
-  shell: VehicleShell,
-): void {
-  const rot = shell.rotation_deg ?? [-90, 90, 0];
-  root.rotation.set(
-    (rot[0] * Math.PI) / 180,
-    (rot[1] * Math.PI) / 180,
-    (rot[2] * Math.PI) / 180,
-  );
+/** Align longest bbox axis to fore-aft (X), scale to mm length, center on ground. */
+export function fitShellToLayout(root: Object3D, shell: VehicleShell): void {
+  root.rotation.set(0, 0, 0);
+  root.quaternion.identity();
+  alignLongestAxisToX(root);
+
+  if (shell.rotation_deg?.length === 3) {
+    const [rx, ry, rz] = shell.rotation_deg;
+    root.rotateX((rx * Math.PI) / 180);
+    root.rotateY((ry * Math.PI) / 180);
+    root.rotateZ((rz * Math.PI) / 180);
+  }
 
   const box = new Box3().setFromObject(root);
   const size = new Vector3();
-  const center = new Vector3();
   box.getSize(size);
-  box.getCenter(center);
-
-  // Fore-aft span along X after rotation (Ferrari GLB default orientation).
   const lengthAlongX = size.x;
-  const scale = shell.target_length_mm / Math.max(lengthAlongX, 1);
+  const scale = shell.target_length_mm / Math.max(lengthAlongX, 1e-6);
   root.scale.setScalar(scale);
 
+  const center = new Vector3();
   box.setFromObject(root);
   box.getCenter(center);
   root.position.sub(center);
@@ -54,15 +60,46 @@ export function fitShellToLayout(
   root.position.z += off[2];
 }
 
+function alignLongestAxisToX(root: Object3D): void {
+  const q = new Quaternion();
+  let best = new Box3().setFromObject(root);
+  let bestSize = new Vector3();
+  best.getSize(bestSize);
+  let bestLen = bestSize.x;
+  let bestQ = root.quaternion.clone();
+
+  const candidates = [
+    new Quaternion(),
+    new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), Math.PI / 2),
+    new Quaternion().setFromAxisAngle(new Vector3(0, 0, 1), -Math.PI / 2),
+    new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), Math.PI / 2),
+    new Quaternion().setFromAxisAngle(new Vector3(1, 0, 0), -Math.PI / 2),
+    new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), Math.PI / 2),
+    new Quaternion().setFromAxisAngle(new Vector3(0, 1, 0), -Math.PI / 2),
+  ];
+
+  for (const cand of candidates) {
+    root.quaternion.copy(cand);
+    const b = new Box3().setFromObject(root);
+    const s = new Vector3();
+    b.getSize(s);
+    if (s.x > bestLen) {
+      bestLen = s.x;
+      bestQ.copy(cand);
+    }
+  }
+  root.quaternion.copy(bestQ);
+}
+
 function applyShellMaterials(root: Object3D, opacity: number) {
   root.traverse((obj) => {
     if (!(obj instanceof Mesh)) return;
     const mats = Array.isArray(obj.material) ? obj.material : [obj.material];
     obj.material = mats.map((m) => {
       const base = new MeshStandardMaterial({
-        color: "#c8ccd4",
-        metalness: 0.55,
-        roughness: 0.35,
+        color: "#b8bcc6",
+        metalness: 0.65,
+        roughness: 0.28,
         transparent: opacity < 1,
         opacity,
       });
@@ -81,7 +118,7 @@ export async function loadVehicleShell(
   root.userData = { label: shell.name, group: "shell" };
   root.add(gltf.scene);
 
-  applyShellMaterials(root, shell.opacity ?? 0.88);
+  applyShellMaterials(root, shell.opacity ?? 1);
   fitShellToLayout(root, shell);
 
   const dispose = () => {

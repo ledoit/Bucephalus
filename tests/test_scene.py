@@ -15,7 +15,8 @@ def test_build_scene_has_engine_and_tanks():
     assert scene["layout_source"] == "derived_from_spec"
     assert scene["vehicle_shell"]["url"] == "/models/sports_shell.glb"
     ids = {p["id"] for p in scene["primitives"]}
-    assert "engine_crankcase" in ids
+    assert "engine_block" in ids
+    assert "engine_crankcase" not in ids
     assert "bay_envelope" in ids
     assert any(p["kind"] == "cylinder" and p["group"] == "tanks" for p in scene["primitives"])
     assert scene["summary"]["engine_source"] == "lamborghini_5.2_v10_reference"
