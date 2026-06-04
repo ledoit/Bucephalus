@@ -23,15 +23,43 @@ Feasibility math for a **transverse-mounted V10 hydrogen combustion** car with *
 ## Quick start
 
 ```bash
-cd Menhir/Bucephalus
+cd Menhir/Car/Bucephalus
 python -m venv .venv
-source .venv/Scripts/activate   # Windows Git Bash
+source .venv/bin/activate       # macOS/Linux
+# source .venv/Scripts/activate # Windows Git Bash
 pip install -r requirements.txt pytest
 python -m bucephalus config/bucephalus_v0.yaml
 pytest
 ```
 
 Exit code `0` = all gates pass; `1` = at least one NO-GO (expected until you tune `config/bucephalus_v0.yaml` to measured packaging).
+
+## 3D packaging viewer (tentative blocks)
+
+Export a scene JSON from your YAML, then open the browser viewer (Three.js host patterned after `Menhir/vfx/scenepeek`):
+
+```bash
+python -m bucephalus config/bucephalus_v0.yaml --export-scene viewer/public/scene.json
+cd viewer && npm install && npm run dev
+```
+
+Open http://localhost:5174 — body shell, engine bay IML, transverse engine block, H₂ voids/tanks, and mass CG are **placeholder blocks** until you drop in measured CAD (export glTF from your DCC and extend the viewer later).
+
+## Deploy viewer on Vercel
+
+1. Import [github.com/ledoit/Bucephalus](https://github.com/ledoit/Bucephalus) in Vercel.
+2. Set **Root Directory** to `viewer`.
+3. Deploy (Vite — build `npm run build`, output `dist`).
+
+`viewer/public/scene.json` is checked in from the default YAML. After you change `config/bucephalus_v0.yaml`, re-export and commit, or add a build step that runs Python first.
+
+| Color / group | Meaning |
+|---------------|---------|
+| Gray body | Tentative outer envelope |
+| Blue wireframe | Bay IML limits from YAML |
+| Gold / red engine | Resolved preset box (red if gate fails) |
+| Green voids | Declared tunnel / underfloor / seat-back packaging |
+| Teal boxes | 700 bar tank volumes from YAML |
 
 ## Edit your concept
 
@@ -49,4 +77,4 @@ Exit code `0` = all gates pass; `1` = at least one NO-GO (expected until you tun
 
 ## Menhir location
 
-`Menhir/Bucephalus` — standalone Python; init git here when you want version control.
+`Menhir/Car/Bucephalus` — standalone Python with its own git repo.

@@ -1,0 +1,254 @@
+:root {
+  color-scheme: dark;
+  font-family:
+    "SF Pro Text",
+    system-ui,
+    -apple-system,
+    sans-serif;
+  line-height: 1.45;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  height: 100%;
+  background: #0c0e12;
+  color: #e8ecf4;
+}
+
+.app {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  grid-template-columns: 1fr 300px;
+  grid-template-areas:
+    "toolbar toolbar"
+    "viewport panel"
+    "status panel";
+  height: 100%;
+}
+
+.toolbar {
+  grid-area: toolbar;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 1rem;
+  border-bottom: 1px solid #252a36;
+  background: #12151c;
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.brand-name {
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.brand-tag {
+  font-size: 0.72rem;
+  color: #8b95a8;
+}
+
+.toolbar-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+button {
+  font: inherit;
+  font-size: 0.85rem;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  border: 1px solid #3a4254;
+  background: #1a1f2a;
+  color: inherit;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #252d3d;
+}
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.85rem;
+  color: #aab3c5;
+}
+
+.file-input {
+  display: none;
+}
+
+.viewport {
+  grid-area: viewport;
+  position: relative;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.viewport canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+.drop-hint {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  text-align: center;
+  gap: 0.35rem;
+  padding: 1rem;
+}
+
+.drop-hint p {
+  margin: 0;
+}
+
+.muted {
+  color: #8b95a8;
+}
+
+.small {
+  font-size: 0.8rem;
+  max-width: 32rem;
+}
+
+.status {
+  grid-area: status;
+  padding: 0.45rem 1rem;
+  font-size: 0.82rem;
+  border-top: 1px solid #252a36;
+  background: #12151c;
+}
+
+.status-loading {
+  color: #8eb4ff;
+}
+
+.status-error {
+  color: #f08080;
+}
+
+.status-ready {
+  color: #8b95a8;
+}
+
+.panel {
+  grid-area: panel;
+  padding: 1rem;
+  border-left: 1px solid #252a36;
+  background: #0f1218;
+  font-size: 0.82rem;
+  overflow-y: auto;
+}
+
+.panel h2 {
+  margin: 0.75rem 0 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.panel h2:first-child {
+  margin-top: 0;
+}
+
+.legend {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.legend li {
+  margin-bottom: 0.25rem;
+}
+
+.legend label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  cursor: pointer;
+}
+
+.facts {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.2rem 0.75rem;
+  margin: 0;
+}
+
+.facts dt {
+  color: #8b95a8;
+}
+
+.facts dd {
+  margin: 0;
+}
+
+.gates {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.gates li {
+  margin-bottom: 0.45rem;
+  padding-left: 0.5rem;
+  border-left: 3px solid #3a4254;
+}
+
+.gates li.pass {
+  border-color: #3ecf8e;
+}
+
+.gates li.fail {
+  border-color: #e85d5d;
+}
+
+.gates code {
+  display: block;
+  font-size: 0.78rem;
+}
+
+.gates .muted {
+  font-size: 0.75rem;
+}
+
+.note {
+  margin-top: 1rem;
+  font-size: 0.78rem;
+}
+
+@media (max-width: 900px) {
+  .app {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "toolbar"
+      "viewport"
+      "status"
+      "panel";
+  }
+
+  .panel {
+    border-left: none;
+    border-top: 1px solid #252a36;
+  }
+}

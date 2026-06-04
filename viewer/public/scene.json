@@ -1,0 +1,258 @@
+{
+  "version": 1,
+  "vehicle": "bucephalus_v0",
+  "units": "mm",
+  "axes": {
+    "x": "fore_aft",
+    "y": "lateral",
+    "z": "up"
+  },
+  "note": "Tentative block model for packaging review. Replace with CAD/glTF when measured.",
+  "wheelbase_mm": 2480.0,
+  "track_front_mm": 1580.0,
+  "track_rear_mm": 1560.0,
+  "primitives": [
+    {
+      "id": "body_shell",
+      "label": "Body shell (tentative)",
+      "group": "body",
+      "center_mm": [
+        0.0,
+        0.0,
+        920.0
+      ],
+      "size_mm": [
+        4180.0,
+        1700.0,
+        1180.0
+      ],
+      "color": "#4a5568",
+      "opacity": 0.22,
+      "wireframe": false
+    },
+    {
+      "id": "bay_envelope",
+      "label": "Engine bay IML limit",
+      "group": "bay",
+      "center_mm": [
+        -180.0,
+        0.0,
+        880.0
+      ],
+      "size_mm": [
+        680.0,
+        760.0,
+        720.0
+      ],
+      "color": "#5b8def",
+      "opacity": 0.18,
+      "wireframe": true
+    },
+    {
+      "id": "engine_block",
+      "label": "Engine (lamborghini_5.2_v10_reference)",
+      "group": "powertrain",
+      "center_mm": [
+        -180.0,
+        0.0,
+        880.0
+      ],
+      "size_mm": [
+        640.0,
+        720.0,
+        720.0
+      ],
+      "color": "#e85d5d",
+      "opacity": 0.72,
+      "wireframe": false
+    },
+    {
+      "id": "engine_required",
+      "label": "Engine + clearances",
+      "group": "powertrain",
+      "center_mm": [
+        -180.0,
+        0.0,
+        892.5
+      ],
+      "size_mm": [
+        685.0,
+        755.0,
+        745.0
+      ],
+      "color": "#e8a838",
+      "opacity": 0.12,
+      "wireframe": true
+    },
+    {
+      "id": "packaging_tunnel",
+      "label": "Tunnel packaging (42 L)",
+      "group": "storage_void",
+      "center_mm": [
+        -420.0,
+        0.0,
+        180.0
+      ],
+      "size_mm": [
+        921.288222258989,
+        287.90256945593404,
+        158.34641320076375
+      ],
+      "color": "#3ecf8e",
+      "opacity": 0.14,
+      "wireframe": true
+    },
+    {
+      "id": "packaging_underfloor",
+      "label": "Underfloor packaging (28 L)",
+      "group": "storage_void",
+      "center_mm": [
+        320.0,
+        0.0,
+        95.0
+      ],
+      "size_mm": [
+        660.385449778925,
+        440.2569665192834,
+        96.30621142609323
+      ],
+      "color": "#3ecf8e",
+      "opacity": 0.14,
+      "wireframe": true
+    },
+    {
+      "id": "packaging_seat_back",
+      "label": "Seat-back packaging (12 L)",
+      "group": "storage_void",
+      "center_mm": [
+        680.0,
+        0.0,
+        520.0
+      ],
+      "size_mm": [
+        121.32137516012928,
+        339.699850448362,
+        291.17130038431026
+      ],
+      "color": "#3ecf8e",
+      "opacity": 0.14,
+      "wireframe": true
+    },
+    {
+      "id": "tank_0",
+      "label": "tunnel_center_700bar (38 L \u2192 1.4 kg H\u2082)",
+      "group": "tanks",
+      "center_mm": [
+        -420.0,
+        0.0,
+        180.0
+      ],
+      "size_mm": [
+        871.5568391633885,
+        280.1432697310892,
+        155.6351498506051
+      ],
+      "color": "#2dd4bf",
+      "opacity": 0.65,
+      "wireframe": false
+    },
+    {
+      "id": "tank_1",
+      "label": "underfloor_rear_700bar (24 L \u2192 0.9 kg H\u2082)",
+      "group": "tanks",
+      "center_mm": [
+        320.0,
+        0.0,
+        95.0
+      ],
+      "size_mm": [
+        623.1679684369751,
+        339.90980096562276,
+        113.30326698854093
+      ],
+      "color": "#2dd4bf",
+      "opacity": 0.65,
+      "wireframe": false
+    }
+  ],
+  "markers": [
+    {
+      "id": "cg_total",
+      "label": "Mass CG (budget)",
+      "position_mm": [
+        414.2357059509918,
+        0.0,
+        99.48658109684948
+      ],
+      "color": "#fbbf24",
+      "radius_mm": 45.0
+    },
+    {
+      "id": "rear_axle",
+      "label": "Rear axle",
+      "position_mm": [
+        -1240.0,
+        0.0,
+        330.0
+      ],
+      "color": "#8b95a8",
+      "radius_mm": 28.0
+    },
+    {
+      "id": "front_axle",
+      "label": "Front axle",
+      "position_mm": [
+        1240.0,
+        0.0,
+        330.0
+      ],
+      "color": "#8b95a8",
+      "radius_mm": 28.0
+    }
+  ],
+  "summary": {
+    "engine_source": "lamborghini_5.2_v10_reference",
+    "transverse_fits": false,
+    "h2_kg": 2.25,
+    "curb_kg": 857.0,
+    "curb_delta_kg": -323.0,
+    "gates_passed": false
+  },
+  "gates": [
+    {
+      "id": "transverse_bay_lateral",
+      "passed": true,
+      "detail": "need 755 mm, bay 760 mm"
+    },
+    {
+      "id": "transverse_bay_fore_aft",
+      "passed": false,
+      "detail": "need 685 mm, bay 680 mm"
+    },
+    {
+      "id": "transverse_bay_height",
+      "passed": false,
+      "detail": "need 745 mm, bay 720 mm"
+    },
+    {
+      "id": "no_trunk_storage_volume",
+      "passed": true,
+      "detail": "tanks 62.0 L in 82.0 L packaging (slack 20.0 L)"
+    },
+    {
+      "id": "mass_budget_complete",
+      "passed": false,
+      "detail": "budget 857.0 kg covers >=92% of target 1180.0 kg (add missing subsystems before trusting curb gate)"
+    },
+    {
+      "id": "curb_mass_target",
+      "passed": false,
+      "detail": "budget 857.0 kg vs target 1180.0 kg (delta -323.0 kg)"
+    },
+    {
+      "id": "range_target",
+      "passed": false,
+      "detail": "est. 27 km vs target 320 km on 2.25 kg H2"
+    }
+  ]
+}

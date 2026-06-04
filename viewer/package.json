@@ -1,0 +1,25 @@
+{
+  "name": "bucephalus-viewer",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Tentative packaging block viewer for Bucephalus scene JSON",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^19.2.6",
+    "react-dom": "^19.2.6",
+    "three": "^0.164.1"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.164.1",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "~5.8.3",
+    "vite": "^8.0.12"
+  }
+}
