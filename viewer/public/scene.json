@@ -1,5 +1,5 @@
 {
-  "version": 2,
+  "version": 3,
   "vehicle": "bucephalus_v0",
   "units": "mm",
   "axes": {
@@ -7,31 +7,30 @@
     "y": "lateral",
     "z": "up"
   },
-  "note": "Layout positions scale from wheelbase/track/volumes in YAML. V10 banks are schematic. Drop in glTF when CAD exists.",
+  "note": "Reference car shell scaled to wheelbase; packaging overlays from YAML. Replace sports_shell.glb with your CAD to iterate fit.",
   "layout_source": "derived_from_spec",
+  "vehicle_shell": {
+    "url": "/models/sports_shell.glb",
+    "name": "Sports coupe reference shell (458-class)",
+    "license": "three.js examples \u2014 packaging reference only",
+    "target_length_mm": 4265.6,
+    "rotation_deg": [
+      -90,
+      90,
+      0
+    ],
+    "offset_mm": [
+      0,
+      0,
+      0
+    ],
+    "opacity": 0.9,
+    "replace_hint": "Upload your CAD glB in the viewer or set url to /models/custom_shell.glb"
+  },
   "wheelbase_mm": 2480.0,
   "track_front_mm": 1580.0,
   "track_rear_mm": 1560.0,
   "primitives": [
-    {
-      "id": "body_shell",
-      "label": "Body shell (from wheelbase \u00d7 1.72)",
-      "group": "body",
-      "center_mm": [
-        0.0,
-        0.0,
-        900.24
-      ],
-      "size_mm": [
-        4265.6,
-        1680.0,
-        1140.8
-      ],
-      "color": "#4a5568",
-      "opacity": 0.2,
-      "wireframe": false,
-      "kind": "box"
-    },
     {
       "id": "bay_envelope",
       "label": "Engine bay IML (YAML)",

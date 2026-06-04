@@ -174,16 +174,18 @@ def build_scene(spec: VehicleSpec) -> dict[str, Any]:
     half_wb = spec.wheelbase_mm / 2
     engine_color = "#e8a838" if fit.fits else "#e85d5d"
 
+    vehicle_shell = {
+        "url": "/models/sports_shell.glb",
+        "name": "Sports coupe reference shell (458-class)",
+        "license": "three.js examples — packaging reference only",
+        "target_length_mm": lay.body_length_mm,
+        "rotation_deg": [-90, 90, 0],
+        "offset_mm": [0, 0, 0],
+        "opacity": 0.9,
+        "replace_hint": "Upload your CAD glB in the viewer or set url to /models/custom_shell.glb",
+    }
+
     boxes: list[BoxPrimitive] = [
-        BoxPrimitive(
-            "body_shell",
-            "Body shell (from wheelbase × 1.72)",
-            "body",
-            (0.0, 0.0, lay.body_height_mm / 2 + lay.wheel_radius_mm),
-            (lay.body_length_mm, lay.body_width_mm, lay.body_height_mm),
-            "#4a5568",
-            opacity=0.2,
-        ),
         BoxPrimitive(
             "bay_envelope",
             "Engine bay IML (YAML)",
@@ -306,15 +308,16 @@ def build_scene(spec: VehicleSpec) -> dict[str, Any]:
     primitives: list[dict[str, Any]] = [asdict(p) for p in boxes] + [asdict(p) for p in cylinders]
 
     return {
-        "version": 2,
+        "version": 3,
         "vehicle": spec.name,
         "units": "mm",
         "axes": {"x": "fore_aft", "y": "lateral", "z": "up"},
         "note": (
-            "Layout positions scale from wheelbase/track/volumes in YAML. "
-            "V10 banks are schematic. Drop in glTF when CAD exists."
+            "Reference car shell scaled to wheelbase; packaging overlays from YAML. "
+            "Replace sports_shell.glb with your CAD to iterate fit."
         ),
         "layout_source": "derived_from_spec",
+        "vehicle_shell": vehicle_shell,
         "wheelbase_mm": spec.wheelbase_mm,
         "track_front_mm": spec.track_front_mm,
         "track_rear_mm": spec.track_rear_mm,

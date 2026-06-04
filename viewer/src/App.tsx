@@ -1,16 +1,17 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { buildSceneMeshes } from "./lib/buildSceneMeshes";
-import type { BucephalusScene } from "./lib/sceneTypes";
+import { loadVehicleShell } from "./lib/loadVehicleShell";
+import type { BucephalusScene, VehicleShell } from "./lib/sceneTypes";
 import { createThreeHost, type ThreeHost } from "./lib/threeHost";
 import "./App.css";
 
 type LoadState =
-  | { kind: "loading" }
+  | { kind: "loading"; message: string }
   | { kind: "ready"; scene: BucephalusScene }
   | { kind: "error"; message: string };
 
 const LEGEND: { group: string; label: string }[] = [
-  { group: "body", label: "Body shell" },
+  { group: "shell", label: "Reference car shell (glTF)" },
   { group: "bay", label: "Bay IML" },
   { group: "powertrain", label: "V10 envelope + banks" },
   { group: "storage_void", label: "H₂ packaging voids" },
@@ -23,19 +24,53 @@ function App() {
   const meshesRef = useRef<{ root: import("three").Object3D; dispose: () => void } | null>(
     null,
   );
+  const shellRef = useRef<{ dispose: () => void } | null>(null);
+  const shellUrlRef = useRef<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const shellInputRef = useRef<HTMLInputElement>(null);
+  const sceneRef = useRef<BucephalusScene | null>(null);
 
-  const [load, setLoad] = useState<LoadState>({ kind: "loading" });
+  const [load, setLoad] = useState<LoadState>({
+    kind: "loading",
+    message: "Loading scene…",
+  });
   const [showGrid, setShowGrid] = useState(true);
   const [hiddenGroups, setHiddenGroups] = useState<Set<string>>(new Set());
 
-  const applyScene = useCallback((data: BucephalusScene) => {
-    const host = hostRef.current;
-    if (!host) return;
+  const clearContent = useCallback((host: ThreeHost) => {
     meshesRef.current?.dispose();
-    meshesRef.current = buildSceneMeshes(host, data);
-    setLoad({ kind: "ready", scene: data });
+    meshesRef.current = null;
+    shellRef.current?.dispose();
+    shellRef.current = null;
+    if (shellUrlRef.current) {
+      URL.revokeObjectURL(shellUrlRef.current);
+      shellUrlRef.current = null;
+    }
+    for (const child of [...host.contentRoot.children]) {
+      host.contentRoot.remove(child);
+    }
   }, []);
+
+  const applyScene = useCallback(
+    async (data: BucephalusScene) => {
+      const host = hostRef.current;
+      if (!host) return;
+      clearContent(host);
+
+      if (data.vehicle_shell) {
+        setLoad({ kind: "loading", message: "Loading reference shell…" });
+        const { root, dispose } = await loadVehicleShell(data.vehicle_shell);
+        shellRef.current = { dispose };
+        host.contentRoot.add(root);
+      }
+
+      meshesRef.current = buildSceneMeshes(host, data, { fitCamera: false });
+      host.fitCamera();
+      sceneRef.current = data;
+      setLoad({ kind: "ready", scene: data });
+    },
+    [clearContent],
+  );
 
   useEffect(() => {
     const el = viewportRef.current;
@@ -43,11 +78,11 @@ function App() {
     const host = createThreeHost(el);
     hostRef.current = host;
     return () => {
-      meshesRef.current?.dispose();
+      clearContent(host);
       host.dispose();
       hostRef.current = null;
     };
-  }, []);
+  }, [clearContent]);
 
   useEffect(() => {
     const host = hostRef.current;
@@ -61,7 +96,7 @@ function App() {
         const res = await fetch("/scene.json");
         if (!res.ok) throw new Error(`scene.json ${res.status}`);
         const data = (await res.json()) as BucephalusScene;
-        applyScene(data);
+        await applyScene(data);
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
         setLoad({
@@ -74,25 +109,40 @@ function App() {
 
   useEffect(() => {
     const host = hostRef.current;
-    const root = meshesRef.current?.root;
-    if (!host || !root) return;
-    root.traverse((obj) => {
+    if (!host) return;
+    host.contentRoot.traverse((obj) => {
       const group = obj.userData.group as string | undefined;
       if (!group) return;
       obj.visible = !hiddenGroups.has(group);
     });
   }, [hiddenGroups, load]);
 
-  const onFile = async (files: FileList | null) => {
+  const onSceneFile = async (files: FileList | null) => {
     const file = files?.[0];
     if (!file) return;
     try {
       const text = await file.text();
-      applyScene(JSON.parse(text) as BucephalusScene);
+      await applyScene(JSON.parse(text) as BucephalusScene);
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       setLoad({ kind: "error", message: msg });
     }
+  };
+
+  const onShellFile = async (files: FileList | null) => {
+    const file = files?.[0];
+    const base = sceneRef.current;
+    if (!file || !base?.vehicle_shell) return;
+    const url = URL.createObjectURL(file);
+    if (shellUrlRef.current) URL.revokeObjectURL(shellUrlRef.current);
+    shellUrlRef.current = url;
+    const shell: VehicleShell = {
+      ...base.vehicle_shell,
+      url,
+      name: file.name,
+      license: "User upload",
+    };
+    await applyScene({ ...base, vehicle_shell: shell });
   };
 
   const toggleGroup = (group: string) => {
@@ -107,7 +157,7 @@ function App() {
   const scene = load.kind === "ready" ? load.scene : null;
   const statusText =
     load.kind === "loading"
-      ? "Loading scene.json…"
+      ? load.message
       : load.kind === "error"
         ? load.message
         : `${scene!.vehicle} · ${scene!.summary.gates_passed ? "GO" : "NO-GO"} · Orbit: drag · Zoom: scroll`;
@@ -117,11 +167,14 @@ function App() {
       <header className="toolbar">
         <div className="brand">
           <span className="brand-name">Bucephalus</span>
-          <span className="brand-tag">Tentative packaging blocks</span>
+          <span className="brand-tag">Reference shell + packaging overlays</span>
         </div>
         <div className="toolbar-actions">
           <button type="button" onClick={() => fileInputRef.current?.click()}>
-            Open scene JSON…
+            Scene JSON…
+          </button>
+          <button type="button" onClick={() => shellInputRef.current?.click()}>
+            Replace shell (glb)…
           </button>
           <button type="button" onClick={() => hostRef.current?.fitCamera()}>
             Frame scene
@@ -143,7 +196,17 @@ function App() {
         className="file-input"
         accept=".json,application/json"
         onChange={(e) => {
-          void onFile(e.target.files);
+          void onSceneFile(e.target.files);
+          e.target.value = "";
+        }}
+      />
+      <input
+        ref={shellInputRef}
+        type="file"
+        className="file-input"
+        accept=".glb,.gltf,model/gltf-binary"
+        onChange={(e) => {
+          void onShellFile(e.target.files);
           e.target.value = "";
         }}
       />
@@ -176,6 +239,16 @@ function App() {
           ))}
         </ul>
 
+        {scene?.vehicle_shell && (
+          <>
+            <h2>Vehicle shell</h2>
+            <p className="muted small">{scene.vehicle_shell.name}</p>
+            {scene.vehicle_shell.replace_hint && (
+              <p className="muted small">{scene.vehicle_shell.replace_hint}</p>
+            )}
+          </>
+        )}
+
         {scene && (
           <>
             <h2>Summary</h2>
@@ -206,10 +279,7 @@ function App() {
           </>
         )}
 
-        <p className="muted note">
-          {scene?.note ??
-            "Block positions are placeholders until bay IML and tank CAD are measured."}
-        </p>
+        <p className="muted note">{scene?.note}</p>
       </aside>
     </div>
   );

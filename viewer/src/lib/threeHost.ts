@@ -1,8 +1,11 @@
 import {
+  AmbientLight,
   Box3,
   Clock,
+  DirectionalLight,
   GridHelper,
-  NeutralToneMapping,
+  HemisphereLight,
+  ACESFilmicToneMapping,
   Object3D,
   PerspectiveCamera,
   Scene,
@@ -38,9 +41,19 @@ export function createThreeHost(container: HTMLElement): ThreeHost {
   const renderer = new WebGLRenderer({ antialias: true, alpha: false });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.outputColorSpace = SRGBColorSpace;
-  renderer.toneMapping = NeutralToneMapping;
+  renderer.toneMapping = ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.0;
   renderer.setClearColor(0x0c0e12, 1);
   container.appendChild(renderer.domElement);
+
+  scene.add(new HemisphereLight(0xe8ecf4, 0x1a2030, 0.55));
+  scene.add(new AmbientLight(0xffffff, 0.25));
+  const key = new DirectionalLight(0xffffff, 1.1);
+  key.position.set(4000, 6000, 5000);
+  scene.add(key);
+  const fill = new DirectionalLight(0x8eb4ff, 0.35);
+  fill.position.set(-5000, 2000, -3000);
+  scene.add(fill);
 
   const controls = new OrbitControls(camera, renderer.domElement);
   controls.enableDamping = true;

@@ -42,6 +42,17 @@ export type GateRow = {
   detail: string;
 };
 
+export type VehicleShell = {
+  url: string;
+  name: string;
+  license?: string;
+  target_length_mm: number;
+  rotation_deg?: [number, number, number];
+  offset_mm?: [number, number, number];
+  opacity?: number;
+  replace_hint?: string;
+};
+
 export type BucephalusScene = {
   version: number;
   vehicle: string;
@@ -49,6 +60,7 @@ export type BucephalusScene = {
   axes: Record<string, string>;
   note: string;
   layout_source?: string;
+  vehicle_shell?: VehicleShell;
   wheelbase_mm: number;
   track_front_mm: number;
   track_rear_mm: number;

@@ -34,16 +34,18 @@ pytest
 
 Exit code `0` = all gates pass; `1` = at least one NO-GO (expected until you tune `config/bucephalus_v0.yaml` to measured packaging).
 
-## 3D packaging viewer (tentative blocks)
+## 3D packaging viewer
 
-Export a scene JSON from your YAML, then open the browser viewer (Three.js host patterned after `Menhir/vfx/scenepeek`):
+Export scene JSON from YAML, then open the viewer:
 
 ```bash
 python -m bucephalus config/bucephalus_v0.yaml --export-scene viewer/public/scene.json
 cd viewer && npm install && npm run dev
 ```
 
-Open http://localhost:5174. Layout **scales from your YAML** (wheelbase → body length, bay position, tank cylinders). V10 banks are schematic boxes on the transverse envelope — swap for glTF when you have CAD.
+- **Reference shell:** `viewer/public/models/sports_shell.glb` (458-class coupe from three.js examples), scaled to your wheelbase-derived body length.
+- **Overlays:** bay IML, V10 schematic, H₂ tanks/voids — toggle layers in the UI.
+- **Your CAD:** use **Replace shell (glb)…** in the viewer, or drop `custom_shell.glb` in `viewer/public/models/` and point `vehicle_shell.url` in exported JSON.
 
 ## Deploy viewer on Vercel
 
@@ -55,7 +57,7 @@ Open http://localhost:5174. Layout **scales from your YAML** (wheelbase → body
 
 | Color / group | Meaning |
 |---------------|---------|
-| Gray body | Tentative outer envelope |
+| Silver shell | Reference sports coupe glB (replace with your CAD) |
 | Blue wireframe | Bay IML limits from YAML |
 | Gold / red powertrain | Envelope + crankcase / banks / valve cover (red if gate fails) |
 | Green cylinders | Tunnel / underfloor packaging voids |

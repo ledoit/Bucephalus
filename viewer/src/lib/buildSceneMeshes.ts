@@ -44,6 +44,7 @@ function addMesh(
   if (rotation) mesh.quaternion.copy(rotation);
   mesh.name = id;
   mesh.userData = { label, group };
+  if (group) mesh.renderOrder = 10;
   root.add(mesh);
   disposables.push(() => {
     geo.dispose();
@@ -99,9 +100,10 @@ function addPrimitive(
 export function buildSceneMeshes(
   host: ThreeHost,
   data: BucephalusScene,
+  options?: { fitCamera?: boolean },
 ): { root: Object3D; dispose: () => void } {
   const root = new Group();
-  root.name = "bucephalus-scene";
+  root.name = "packaging-overlays";
   const disposables: (() => void)[] = [];
 
   for (const raw of data.primitives) {
@@ -129,7 +131,7 @@ export function buildSceneMeshes(
   }
 
   host.contentRoot.add(root);
-  host.fitCamera();
+  if (options?.fitCamera !== false) host.fitCamera();
 
   return {
     root,

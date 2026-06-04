@@ -11,8 +11,9 @@ def test_build_scene_has_engine_and_tanks():
     scene = build_scene(spec)
 
     assert scene["vehicle"] == "bucephalus_v0"
-    assert scene["version"] == 2
+    assert scene["version"] == 3
     assert scene["layout_source"] == "derived_from_spec"
+    assert scene["vehicle_shell"]["url"] == "/models/sports_shell.glb"
     ids = {p["id"] for p in scene["primitives"]}
     assert "engine_crankcase" in ids
     assert "bay_envelope" in ids

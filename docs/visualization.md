@@ -33,10 +33,17 @@ Origin is vehicle center on the ground plane.
    - Engine bay aft of center; tunnel/underfloor/seat-back anchors from wheelbase fractions
    - Tank **cylinders** from liter volume (type IV–ish aspect ratios)
    - V10 **schematic**: wireframe envelope + crankcase + two bank boxes + valve cover
-4. Viewer reads JSON (boxes + cylinders). Gates unchanged — still from Python math.
+4. Viewer loads **`vehicle_shell`** glTF (scaled to `target_length_mm`) plus overlay primitives.
+5. Gates unchanged — still from Python math.
 
-Tune anchors in `layout_from_spec()` when clay/CAD gives real positions; later add optional `layout:` overrides in YAML.
+## Using your own car model
 
-## Next step: real CAD
+1. Export clay/CAD as **GLB** (Blender: File → Export → glTF, format GLB).
+2. In the viewer: **Replace shell (glb)…** — packaging overlays stay aligned to the same JSON anchors.
+3. Or commit `viewer/public/models/custom_shell.glb` and set in YAML export / `scene.json`:
+   ```json
+   "vehicle_shell": { "url": "/models/custom_shell.glb", "target_length_mm": 4260, ... }
+   ```
+4. Tune `rotation_deg` / `offset_mm` in exported JSON if the model imports sideways.
 
-Export glTF from CAD and load beside procedural blocks (Scenepeek-style loader), or replace primitives once positions are frozen.
+Tune packaging anchors in `layout_from_spec()` when measured; optional future `layout:` block in YAML.
