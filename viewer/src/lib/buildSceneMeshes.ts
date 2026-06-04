@@ -1,13 +1,17 @@
 import {
   BoxGeometry,
   Color,
+  CylinderGeometry,
   Group,
   Mesh,
   MeshBasicMaterial,
   Object3D,
+  Quaternion,
   SphereGeometry,
+  Vector3,
 } from "three";
-import type { BucephalusScene } from "./sceneTypes";
+import type { Axis, BucephalusScene, ScenePrimitive } from "./sceneTypes";
+import { normalizePrimitive } from "./sceneTypes";
 import type { ThreeHost } from "./threeHost";
 
 const GROUP_COLORS: Record<string, number> = {
@@ -18,6 +22,80 @@ const GROUP_COLORS: Record<string, number> = {
   tanks: 0x2dd4bf,
 };
 
+const AXIS_ROT: Record<Axis, Quaternion> = {
+  x: new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(1, 0, 0)),
+  y: new Quaternion(),
+  z: new Quaternion().setFromUnitVectors(new Vector3(0, 1, 0), new Vector3(0, 0, 1)),
+};
+
+function addMesh(
+  root: Group,
+  geo: BoxGeometry | CylinderGeometry | SphereGeometry,
+  mat: MeshBasicMaterial,
+  position: [number, number, number],
+  rotation: Quaternion | undefined,
+  id: string,
+  label: string,
+  group: string | undefined,
+  disposables: (() => void)[],
+) {
+  const mesh = new Mesh(geo, mat);
+  mesh.position.set(...position);
+  if (rotation) mesh.quaternion.copy(rotation);
+  mesh.name = id;
+  mesh.userData = { label, group };
+  root.add(mesh);
+  disposables.push(() => {
+    geo.dispose();
+    mat.dispose();
+  });
+}
+
+function materialFor(
+  color: string | undefined,
+  group: string,
+  opacity: number,
+  wireframe: boolean,
+) {
+  const c = new Color(color || GROUP_COLORS[group] || 0x888888);
+  return new MeshBasicMaterial({
+    color: c,
+    transparent: opacity < 1,
+    opacity,
+    wireframe,
+    depthWrite: !wireframe && opacity > 0.5,
+  });
+}
+
+function addPrimitive(
+  root: Group,
+  p: ScenePrimitive,
+  disposables: (() => void)[],
+) {
+  const mat = materialFor(p.color, p.group, p.opacity, p.wireframe ?? false);
+  const [cx, cy, cz] = p.center_mm;
+
+  if (p.kind === "cylinder") {
+    const geo = new CylinderGeometry(p.radius_mm, p.radius_mm, p.length_mm, 24);
+    addMesh(
+      root,
+      geo,
+      mat,
+      [cx, cy, cz],
+      AXIS_ROT[p.axis],
+      p.id,
+      p.label,
+      p.group,
+      disposables,
+    );
+    return;
+  }
+
+  const [sx, sy, sz] = p.size_mm;
+  const geo = new BoxGeometry(sx, sy, sz);
+  addMesh(root, geo, mat, [cx, cy, cz], undefined, p.id, p.label, p.group, disposables);
+}
+
 export function buildSceneMeshes(
   host: ThreeHost,
   data: BucephalusScene,
@@ -26,47 +104,28 @@ export function buildSceneMeshes(
   root.name = "bucephalus-scene";
   const disposables: (() => void)[] = [];
 
-  for (const p of data.primitives) {
-    const [sx, sy, sz] = p.size_mm;
-    const geo = new BoxGeometry(sx, sy, sz);
-    const color = new Color(p.color || GROUP_COLORS[p.group] || 0x888888);
-    const mat = new MeshBasicMaterial({
-      color,
-      transparent: p.opacity < 1,
-      opacity: p.opacity,
-      wireframe: p.wireframe ?? false,
-      depthWrite: !(p.wireframe ?? false) && p.opacity > 0.5,
-    });
-    const mesh = new Mesh(geo, mat);
-    const [cx, cy, cz] = p.center_mm;
-    mesh.position.set(cx, cy, cz);
-    mesh.name = p.id;
-    mesh.userData = { label: p.label, group: p.group };
-    root.add(mesh);
-    disposables.push(() => {
-      geo.dispose();
-      mat.dispose();
-    });
+  for (const raw of data.primitives) {
+    addPrimitive(root, normalizePrimitive(raw), disposables);
   }
 
   for (const m of data.markers) {
-    const r = m.radius_mm;
-    const geo = new SphereGeometry(r, 20, 16);
+    const geo = new SphereGeometry(m.radius_mm, 20, 16);
     const mat = new MeshBasicMaterial({
       color: new Color(m.color),
       transparent: true,
       opacity: 0.9,
     });
-    const mesh = new Mesh(geo, mat);
-    const [px, py, pz] = m.position_mm;
-    mesh.position.set(px, py, pz);
-    mesh.name = m.id;
-    mesh.userData = { label: m.label };
-    root.add(mesh);
-    disposables.push(() => {
-      geo.dispose();
-      mat.dispose();
-    });
+    addMesh(
+      root,
+      geo,
+      mat,
+      m.position_mm,
+      undefined,
+      m.id,
+      m.label,
+      undefined,
+      disposables,
+    );
   }
 
   host.contentRoot.add(root);

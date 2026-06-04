@@ -22,18 +22,21 @@ Bucephalus math stays in Python; the **viewer** is a read-only Three.js preview 
 | Y | Lateral (positive = left) |
 | Z | Up from ground |
 
-Origin is vehicle center on the ground plane. Block positions in `bucephalus/scene.py` are **tentative** until you align them to CAD.
+Origin is vehicle center on the ground plane.
 
-## What is modeled
+## Spec → 3D pipeline
 
-- Body shell (rough envelope from wheelbase + track)
-- Engine bay IML box from `bay.*`
-- Transverse engine envelope from preset or custom `engine.*`
-- Packaging voids (tunnel / underfloor / seat-back volumes)
-- Tank boxes sized from liter volumes
-- Mass-budget CG marker
-- Gate pass/fail in the side panel
+1. Edit `config/bucephalus_v0.yaml` (wheelbase, bay IML, tank liters, mass lines).
+2. `python -m bucephalus … --export-scene viewer/public/scene.json`
+3. `bucephalus/scene.py` derives layout:
+   - Body length ≈ `1.72 × wheelbase`, width from track
+   - Engine bay aft of center; tunnel/underfloor/seat-back anchors from wheelbase fractions
+   - Tank **cylinders** from liter volume (type IV–ish aspect ratios)
+   - V10 **schematic**: wireframe envelope + crankcase + two bank boxes + valve cover
+4. Viewer reads JSON (boxes + cylinders). Gates unchanged — still from Python math.
+
+Tune anchors in `layout_from_spec()` when clay/CAD gives real positions; later add optional `layout:` overrides in YAML.
 
 ## Next step: real CAD
 
-When you have a glTF/GLB from CAD, you can load it in the viewer the same way Scenepeek loads assets — add a loader hook beside the JSON blocks, or replace blocks once positions are frozen.
+Export glTF from CAD and load beside procedural blocks (Scenepeek-style loader), or replace primitives once positions are frozen.

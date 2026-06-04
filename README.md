@@ -43,7 +43,7 @@ python -m bucephalus config/bucephalus_v0.yaml --export-scene viewer/public/scen
 cd viewer && npm install && npm run dev
 ```
 
-Open http://localhost:5174 — body shell, engine bay IML, transverse engine block, H₂ voids/tanks, and mass CG are **placeholder blocks** until you drop in measured CAD (export glTF from your DCC and extend the viewer later).
+Open http://localhost:5174. Layout **scales from your YAML** (wheelbase → body length, bay position, tank cylinders). V10 banks are schematic boxes on the transverse envelope — swap for glTF when you have CAD.
 
 ## Deploy viewer on Vercel
 
@@ -57,9 +57,9 @@ Open http://localhost:5174 — body shell, engine bay IML, transverse engine blo
 |---------------|---------|
 | Gray body | Tentative outer envelope |
 | Blue wireframe | Bay IML limits from YAML |
-| Gold / red engine | Resolved preset box (red if gate fails) |
-| Green voids | Declared tunnel / underfloor / seat-back packaging |
-| Teal boxes | 700 bar tank volumes from YAML |
+| Gold / red powertrain | Envelope + crankcase / banks / valve cover (red if gate fails) |
+| Green cylinders | Tunnel / underfloor packaging voids |
+| Teal cylinders | 700 bar tank volumes sized from liter spec |
 
 ## Edit your concept
 

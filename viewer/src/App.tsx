@@ -12,7 +12,7 @@ type LoadState =
 const LEGEND: { group: string; label: string }[] = [
   { group: "body", label: "Body shell" },
   { group: "bay", label: "Bay IML" },
-  { group: "powertrain", label: "Engine / clearance" },
+  { group: "powertrain", label: "V10 envelope + banks" },
   { group: "storage_void", label: "H₂ packaging voids" },
   { group: "tanks", label: "700 bar tanks (tentative)" },
 ];

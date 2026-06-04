@@ -1,5 +1,5 @@
 {
-  "version": 1,
+  "version": 2,
   "vehicle": "bucephalus_v0",
   "units": "mm",
   "axes": {
@@ -7,37 +7,39 @@
     "y": "lateral",
     "z": "up"
   },
-  "note": "Tentative block model for packaging review. Replace with CAD/glTF when measured.",
+  "note": "Layout positions scale from wheelbase/track/volumes in YAML. V10 banks are schematic. Drop in glTF when CAD exists.",
+  "layout_source": "derived_from_spec",
   "wheelbase_mm": 2480.0,
   "track_front_mm": 1580.0,
   "track_rear_mm": 1560.0,
   "primitives": [
     {
       "id": "body_shell",
-      "label": "Body shell (tentative)",
+      "label": "Body shell (from wheelbase \u00d7 1.72)",
       "group": "body",
       "center_mm": [
         0.0,
         0.0,
-        920.0
+        900.24
       ],
       "size_mm": [
-        4180.0,
-        1700.0,
-        1180.0
+        4265.6,
+        1680.0,
+        1140.8
       ],
       "color": "#4a5568",
-      "opacity": 0.22,
-      "wireframe": false
+      "opacity": 0.2,
+      "wireframe": false,
+      "kind": "box"
     },
     {
       "id": "bay_envelope",
-      "label": "Engine bay IML limit",
+      "label": "Engine bay IML (YAML)",
       "group": "bay",
       "center_mm": [
-        -180.0,
+        -347.20000000000005,
         0.0,
-        880.0
+        992.24
       ],
       "size_mm": [
         680.0,
@@ -45,17 +47,18 @@
         720.0
       ],
       "color": "#5b8def",
-      "opacity": 0.18,
-      "wireframe": true
+      "opacity": 0.15,
+      "wireframe": true,
+      "kind": "box"
     },
     {
-      "id": "engine_block",
-      "label": "Engine (lamborghini_5.2_v10_reference)",
+      "id": "engine_envelope",
+      "label": "Engine envelope (lamborghini_5.2_v10_reference)",
       "group": "powertrain",
       "center_mm": [
-        -180.0,
+        -347.20000000000005,
         0.0,
-        880.0
+        992.24
       ],
       "size_mm": [
         640.0,
@@ -63,116 +66,191 @@
         720.0
       ],
       "color": "#e85d5d",
-      "opacity": 0.72,
-      "wireframe": false
+      "opacity": 0.2,
+      "wireframe": true,
+      "kind": "box"
     },
     {
       "id": "engine_required",
       "label": "Engine + clearances",
       "group": "powertrain",
       "center_mm": [
-        -180.0,
+        -347.20000000000005,
         0.0,
-        892.5
+        1004.74
       ],
       "size_mm": [
         685.0,
         755.0,
         745.0
       ],
-      "color": "#e8a838",
-      "opacity": 0.12,
-      "wireframe": true
+      "color": "#e85d5d",
+      "opacity": 0.1,
+      "wireframe": true,
+      "kind": "box"
     },
     {
-      "id": "packaging_tunnel",
-      "label": "Tunnel packaging (42 L)",
-      "group": "storage_void",
+      "id": "engine_crankcase",
+      "label": "Crankcase (lamborghini_5.2_v10_reference)",
+      "group": "powertrain",
       "center_mm": [
-        -420.0,
+        -347.20000000000005,
         0.0,
-        180.0
+        934.64
       ],
       "size_mm": [
-        921.288222258989,
-        287.90256945593404,
-        158.34641320076375
+        588.8000000000001,
+        396.00000000000006,
+        396.00000000000006
       ],
-      "color": "#3ecf8e",
-      "opacity": 0.14,
-      "wireframe": true
+      "color": "#e85d5d",
+      "opacity": 0.5,
+      "wireframe": false,
+      "kind": "box"
     },
     {
-      "id": "packaging_underfloor",
-      "label": "Underfloor packaging (28 L)",
-      "group": "storage_void",
+      "id": "engine_bank_front",
+      "label": "Cylinder bank (fore)",
+      "group": "powertrain",
       "center_mm": [
-        320.0,
-        0.0,
-        95.0
+        -347.20000000000005,
+        158.4,
+        1035.44
       ],
       "size_mm": [
-        660.385449778925,
-        440.2569665192834,
-        96.30621142609323
+        243.2,
+        633.6,
+        446.4
       ],
-      "color": "#3ecf8e",
-      "opacity": 0.14,
-      "wireframe": true
+      "color": "#e85d5d",
+      "opacity": 0.78,
+      "wireframe": false,
+      "kind": "box"
+    },
+    {
+      "id": "engine_bank_rear",
+      "label": "Cylinder bank (aft)",
+      "group": "powertrain",
+      "center_mm": [
+        -347.20000000000005,
+        -158.4,
+        1035.44
+      ],
+      "size_mm": [
+        243.2,
+        633.6,
+        446.4
+      ],
+      "color": "#e85d5d",
+      "opacity": 0.78,
+      "wireframe": false,
+      "kind": "box"
+    },
+    {
+      "id": "engine_valve_cover",
+      "label": "Valve cover / intake plenum",
+      "group": "powertrain",
+      "center_mm": [
+        -347.20000000000005,
+        0.0,
+        1265.8400000000001
+      ],
+      "size_mm": [
+        448.0,
+        324.0,
+        158.4
+      ],
+      "color": "#d4a017",
+      "opacity": 0.85,
+      "wireframe": false,
+      "kind": "box"
     },
     {
       "id": "packaging_seat_back",
-      "label": "Seat-back packaging (12 L)",
+      "label": "Seat-back void (12 L)",
       "group": "storage_void",
       "center_mm": [
-        680.0,
+        942.4,
         0.0,
-        520.0
+        763.344
       ],
       "size_mm": [
-        121.32137516012928,
-        339.699850448362,
-        291.17130038431026
+        119.33195217124585,
+        344.7367507169324,
+        291.70032752971207
       ],
       "color": "#3ecf8e",
-      "opacity": 0.14,
-      "wireframe": true
+      "opacity": 0.12,
+      "wireframe": true,
+      "kind": "box"
+    },
+    {
+      "id": "packaging_tunnel",
+      "label": "Tunnel void (42 L)",
+      "group": "storage_void",
+      "center_mm": [
+        -545.6,
+        0.0,
+        181.41200000000003
+      ],
+      "radius_mm": 119.80499770205755,
+      "length_mm": 1026.8999803033503,
+      "axis": "x",
+      "color": "#3ecf8e",
+      "opacity": 0.12,
+      "wireframe": true,
+      "kind": "cylinder"
+    },
+    {
+      "id": "packaging_underfloor",
+      "label": "Underfloor void (28 L)",
+      "group": "storage_void",
+      "center_mm": [
+        297.59999999999997,
+        0.0,
+        105.54880000000001
+      ],
+      "radius_mm": 122.83875705464398,
+      "length_mm": 607.4934894338757,
+      "axis": "x",
+      "color": "#3ecf8e",
+      "opacity": 0.12,
+      "wireframe": true,
+      "kind": "cylinder"
     },
     {
       "id": "tank_0",
       "label": "tunnel_center_700bar (38 L \u2192 1.4 kg H\u2082)",
       "group": "tanks",
       "center_mm": [
-        -420.0,
+        -545.6,
         0.0,
-        180.0
+        181.41200000000003
       ],
-      "size_mm": [
-        871.5568391633885,
-        280.1432697310892,
-        155.6351498506051
-      ],
+      "radius_mm": 106.5478215440636,
+      "length_mm": 1065.478215440636,
+      "axis": "x",
       "color": "#2dd4bf",
-      "opacity": 0.65,
-      "wireframe": false
+      "opacity": 0.7,
+      "wireframe": false,
+      "kind": "cylinder"
     },
     {
       "id": "tank_1",
       "label": "underfloor_rear_700bar (24 L \u2192 0.9 kg H\u2082)",
       "group": "tanks",
       "center_mm": [
-        320.0,
+        297.59999999999997,
         0.0,
-        95.0
+        105.54880000000001
       ],
-      "size_mm": [
-        623.1679684369751,
-        339.90980096562276,
-        113.30326698854093
-      ],
+      "radius_mm": 102.95665946701926,
+      "length_mm": 720.6966162691349,
+      "axis": "x",
       "color": "#2dd4bf",
-      "opacity": 0.65,
-      "wireframe": false
+      "opacity": 0.7,
+      "wireframe": false,
+      "kind": "cylinder"
     }
   ],
   "markers": [
@@ -193,7 +271,7 @@
       "position_mm": [
         -1240.0,
         0.0,
-        330.0
+        329.84000000000003
       ],
       "color": "#8b95a8",
       "radius_mm": 28.0
@@ -204,7 +282,7 @@
       "position_mm": [
         1240.0,
         0.0,
-        330.0
+        329.84000000000003
       ],
       "color": "#8b95a8",
       "radius_mm": 28.0

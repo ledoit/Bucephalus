@@ -1,4 +1,7 @@
+export type Axis = "x" | "y" | "z";
+
 export type BoxPrimitive = {
+  kind: "box";
   id: string;
   label: string;
   group: string;
@@ -8,6 +11,22 @@ export type BoxPrimitive = {
   opacity: number;
   wireframe?: boolean;
 };
+
+export type CylinderPrimitive = {
+  kind: "cylinder";
+  id: string;
+  label: string;
+  group: string;
+  center_mm: [number, number, number];
+  radius_mm: number;
+  length_mm: number;
+  axis: Axis;
+  color: string;
+  opacity: number;
+  wireframe?: boolean;
+};
+
+export type ScenePrimitive = BoxPrimitive | CylinderPrimitive;
 
 export type Marker = {
   id: string;
@@ -29,10 +48,11 @@ export type BucephalusScene = {
   units: string;
   axes: Record<string, string>;
   note: string;
+  layout_source?: string;
   wheelbase_mm: number;
   track_front_mm: number;
   track_rear_mm: number;
-  primitives: BoxPrimitive[];
+  primitives: ScenePrimitive[];
   markers: Marker[];
   summary: {
     engine_source: string;
@@ -44,3 +64,13 @@ export type BucephalusScene = {
   };
   gates: GateRow[];
 };
+
+/** v1 scenes used boxes only (no kind field). */
+export function normalizePrimitive(
+  raw: ScenePrimitive & { kind?: string; size_mm?: [number, number, number] },
+): ScenePrimitive {
+  if (raw.kind === "cylinder") return raw as CylinderPrimitive;
+  if (raw.kind === "box") return raw as BoxPrimitive;
+  if (raw.size_mm) return { ...raw, kind: "box" } as BoxPrimitive;
+  return raw as ScenePrimitive;
+}

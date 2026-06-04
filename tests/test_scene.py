@@ -11,11 +11,12 @@ def test_build_scene_has_engine_and_tanks():
     scene = build_scene(spec)
 
     assert scene["vehicle"] == "bucephalus_v0"
-    assert scene["version"] == 1
+    assert scene["version"] == 2
+    assert scene["layout_source"] == "derived_from_spec"
     ids = {p["id"] for p in scene["primitives"]}
-    assert "engine_block" in ids
+    assert "engine_crankcase" in ids
     assert "bay_envelope" in ids
-    assert any(p["group"] == "tanks" for p in scene["primitives"])
+    assert any(p["kind"] == "cylinder" and p["group"] == "tanks" for p in scene["primitives"])
     assert scene["summary"]["engine_source"] == "lamborghini_5.2_v10_reference"
     assert len(scene["gates"]) >= 6
 
