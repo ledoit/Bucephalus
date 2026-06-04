@@ -1,8 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
-import {
-  anchorOverlaysToShell,
-  engineAnchorFromScene,
-} from "./lib/anchorOverlays";
+import { layoutPackagingOnShell } from "./lib/anchorOverlays";
 import { buildSceneMeshes } from "./lib/buildSceneMeshes";
 import { loadVehicleShell } from "./lib/loadVehicleShell";
 import type { BucephalusScene, VehicleShell } from "./lib/sceneTypes";
@@ -21,10 +18,8 @@ const LEGEND: { group: string; label: string }[] = [
   { group: "bay", label: "Engine bay IML" },
   { group: "powertrain", label: "V10 fit box" },
   { group: "tanks", label: "H₂ tanks" },
-  { group: "markers", label: "CG & axles" },
+  { group: "markers", label: "CG point + axle lines" },
 ];
-
-const DEFAULT_HIDDEN = new Set<string>(OVERLAY_GROUPS);
 
 function App() {
   const viewportRef = useRef<HTMLDivElement>(null);
@@ -43,10 +38,9 @@ function App() {
     message: "Loading scene…",
   });
   const [showGrid, setShowGrid] = useState(true);
-  const [hiddenGroups, setHiddenGroups] = useState<Set<string>>(
-    () => new Set(DEFAULT_HIDDEN),
-  );
+  const [hiddenGroups, setHiddenGroups] = useState<Set<string>>(() => new Set());
   const [shellLoaded, setShellLoaded] = useState(false);
+  const [shellError, setShellError] = useState<string | null>(null);
 
   const clearContent = useCallback((host: ThreeHost) => {
     meshesRef.current?.dispose();
@@ -68,6 +62,7 @@ function App() {
       if (!host) return;
       clearContent(host);
 
+      setShellError(null);
       let shellRoot: import("three").Group | null = null;
       if (data.vehicle_shell) {
         setLoad({ kind: "loading", message: "Loading car shell…" });
@@ -80,7 +75,7 @@ function App() {
         } catch (e) {
           setShellLoaded(false);
           const msg = e instanceof Error ? e.message : String(e);
-          console.warn("Shell load failed:", msg);
+          setShellError(msg);
         }
       } else {
         setShellLoaded(false);
@@ -88,10 +83,10 @@ function App() {
 
       meshesRef.current = buildSceneMeshes(host, data, { fitCamera: false });
       if (shellRoot && meshesRef.current.root) {
-        anchorOverlaysToShell(
+        layoutPackagingOnShell(
           meshesRef.current.root as import("three").Group,
           shellRoot,
-          engineAnchorFromScene(data),
+          data,
         );
       }
       host.fitCamera();
@@ -183,11 +178,9 @@ function App() {
     });
   };
 
-  const setViewPreset = (preset: "car" | "packaging" | "all") => {
+  const setViewPreset = (preset: "car" | "all") => {
     if (preset === "car") {
-      setHiddenGroups(new Set(DEFAULT_HIDDEN));
-    } else if (preset === "packaging") {
-      setHiddenGroups(new Set(["markers"]));
+      setHiddenGroups(new Set([...OVERLAY_GROUPS]));
     } else {
       setHiddenGroups(new Set());
     }
@@ -200,7 +193,11 @@ function App() {
       : load.kind === "error"
         ? load.message
         : `${scene!.vehicle} · ${scene!.summary.gates_passed ? "GO" : "NO-GO"} · ${
-            shellLoaded ? "Car shell loaded" : "Shell missing — overlays only"
+            shellLoaded
+              ? "Shell OK"
+              : shellError
+                ? `Shell failed: ${shellError}`
+                : "No shell"
           }`;
 
   return (
@@ -220,8 +217,8 @@ function App() {
           <button type="button" onClick={() => setViewPreset("car")}>
             Car only
           </button>
-          <button type="button" onClick={() => setViewPreset("packaging")}>
-            Packaging
+          <button type="button" onClick={() => setViewPreset("all")}>
+            All layers
           </button>
           <button type="button" onClick={() => hostRef.current?.fitCamera()}>
             Frame
@@ -272,8 +269,14 @@ function App() {
       <aside className="panel">
         <h2>Layers</h2>
         <p className="muted small">
-          Start with <strong>Car only</strong>. Turn on packaging to check bay / tanks against the shell.
+          <strong>CG</strong> = center of gravity from your mass budget YAML.
+          Tanks align to tunnel / underfloor on the shell when it loads.
         </p>
+        {shellError && (
+          <p className="shell-error small">
+            Shell error: {shellError}. Draco decoder is bundled under /draco — redeploy viewer.
+          </p>
+        )}
         <ul className="legend">
           {LEGEND.map(({ group, label }) => (
             <li key={group}>

@@ -9,17 +9,15 @@ import {
 } from "three";
 import { DRACOLoader } from "three/examples/jsm/loaders/DRACOLoader.js";
 import { GLTFLoader } from "three/examples/jsm/loaders/GLTFLoader.js";
+import { assetUrl } from "./assetUrl";
 import type { VehicleShell } from "./sceneTypes";
-
-const DRACO_DECODER =
-  "https://www.gstatic.com/draco/versioned/decoders/1.5.6/";
 
 let loader: GLTFLoader | null = null;
 
 function getLoader(): GLTFLoader {
   if (!loader) {
     const draco = new DRACOLoader();
-    draco.setDecoderPath(DRACO_DECODER);
+    draco.setDecoderPath(assetUrl("draco/"));
     const gltf = new GLTFLoader();
     gltf.setDRACOLoader(draco);
     loader = gltf;
@@ -27,7 +25,6 @@ function getLoader(): GLTFLoader {
   return loader;
 }
 
-/** Align longest bbox axis to fore-aft (X), scale to mm length, center on ground. */
 export function fitShellToLayout(root: Object3D, shell: VehicleShell): void {
   root.rotation.set(0, 0, 0);
   root.quaternion.identity();
@@ -43,8 +40,7 @@ export function fitShellToLayout(root: Object3D, shell: VehicleShell): void {
   const box = new Box3().setFromObject(root);
   const size = new Vector3();
   box.getSize(size);
-  const lengthAlongX = size.x;
-  const scale = shell.target_length_mm / Math.max(lengthAlongX, 1e-6);
+  const scale = shell.target_length_mm / Math.max(size.x, 1e-6);
   root.scale.setScalar(scale);
 
   const center = new Vector3();
@@ -61,12 +57,8 @@ export function fitShellToLayout(root: Object3D, shell: VehicleShell): void {
 }
 
 function alignLongestAxisToX(root: Object3D): void {
-  const q = new Quaternion();
-  let best = new Box3().setFromObject(root);
-  let bestSize = new Vector3();
-  best.getSize(bestSize);
-  let bestLen = bestSize.x;
-  let bestQ = root.quaternion.clone();
+  let bestLen = 0;
+  let bestQ = new Quaternion();
 
   const candidates = [
     new Quaternion(),
@@ -112,7 +104,8 @@ function applyShellMaterials(root: Object3D, opacity: number) {
 export async function loadVehicleShell(
   shell: VehicleShell,
 ): Promise<{ root: Group; dispose: () => void }> {
-  const gltf = await getLoader().loadAsync(shell.url);
+  const url = assetUrl(shell.url.replace(/^\//, ""));
+  const gltf = await getLoader().loadAsync(url);
   const root = new Group();
   root.name = "vehicle-shell";
   root.userData = { label: shell.name, group: "shell" };

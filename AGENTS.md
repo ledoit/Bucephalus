@@ -21,6 +21,6 @@ cd viewer && npm install && npm run dev
 pytest
 ```
 
-Scene layout lives in `bucephalus/scene.py` (block primitives only). Do not claim CAD accuracy in the viewer — update YAML and re-export JSON when bay IML or tank positions are measured.
+Scene layout lives in `bucephalus/scene.py`. The viewer loads `models/sports_shell.glb` (Draco decoder in `viewer/public/draco/`). Real car meshes: see `docs/ai-model-pipeline.md`. Do not claim CAD accuracy — update YAML, re-export `scene.json`, replace shell glB.
 
 *Last updated: 2026-05-25*

@@ -237,6 +237,11 @@ button:hover {
   font-size: 0.78rem;
 }
 
+.shell-error {
+  color: #f08080;
+  margin-top: 0.5rem;
+}
+
 @media (max-width: 900px) {
   .app {
     grid-template-columns: 1fr;

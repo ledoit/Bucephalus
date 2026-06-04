@@ -8,10 +8,10 @@
     "z": "up"
   },
   "overlay_mode": "minimal",
-  "note": "Default view: car shell only. Toggle packaging layers to see bay, engine fit, and tanks. Overlays snap to the shell when loaded.",
+  "note": "Tanks: tunnel = center spine, underfloor = aft of cabin (YAML volumes). CG = center of gravity from mass budget. Overlays align to shell when it loads.",
   "layout_source": "derived_from_spec",
   "vehicle_shell": {
-    "url": "/models/sports_shell.glb",
+    "url": "models/sports_shell.glb",
     "name": "Sports coupe reference shell (458-class)",
     "license": "three.js examples \u2014 packaging reference only",
     "target_length_mm": 4265.6,
@@ -103,7 +103,7 @@
   "markers": [
     {
       "id": "cg_total",
-      "label": "Mass CG",
+      "label": "Center of gravity (mass budget sum)",
       "position_mm": [
         414.2357059509918,
         0.0,
@@ -114,7 +114,7 @@
     },
     {
       "id": "rear_axle",
-      "label": "Rear axle",
+      "label": "Rear axle (wheel centerline)",
       "position_mm": [
         -1240.0,
         0.0,
@@ -125,7 +125,7 @@
     },
     {
       "id": "front_axle",
-      "label": "Front axle",
+      "label": "Front axle (wheel centerline)",
       "position_mm": [
         1240.0,
         0.0,

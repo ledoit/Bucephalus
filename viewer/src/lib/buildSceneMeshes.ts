@@ -110,13 +110,33 @@ export function buildSceneMeshes(
     addPrimitive(root, normalizePrimitive(raw), disposables);
   }
 
+  const track = Math.max(data.track_front_mm, data.track_rear_mm);
+  const axleRadius = 40;
+
   for (const m of data.markers) {
-    const geo = new SphereGeometry(m.radius_mm, 12, 10);
     const mat = new MeshBasicMaterial({
       color: new Color(m.color),
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.9,
     });
+
+    if (m.id.includes("axle")) {
+      const geo = new CylinderGeometry(axleRadius, axleRadius, track, 16);
+      addMesh(
+        root,
+        geo,
+        mat,
+        m.position_mm,
+        undefined,
+        m.id,
+        m.label,
+        "markers",
+        disposables,
+      );
+      continue;
+    }
+
+    const geo = new SphereGeometry(Math.min(m.radius_mm, 30), 12, 10);
     addMesh(
       root,
       geo,

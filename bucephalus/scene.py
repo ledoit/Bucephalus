@@ -118,7 +118,7 @@ def build_scene(spec: VehicleSpec) -> dict[str, Any]:
     engine_color = "#e8a838" if fit.fits else "#e85d5d"
 
     vehicle_shell = {
-        "url": "/models/sports_shell.glb",
+        "url": "models/sports_shell.glb",
         "name": "Sports coupe reference shell (458-class)",
         "license": "three.js examples — packaging reference only",
         "target_length_mm": lay.body_length_mm,
@@ -177,9 +177,27 @@ def build_scene(spec: VehicleSpec) -> dict[str, Any]:
         )
 
     markers = [
-        Marker("cg_total", "Mass CG", (mass.cg_x_mm, mass.cg_y_mm, mass.cg_z_mm), "#fbbf24", 22.0),
-        Marker("rear_axle", "Rear axle", (-half_wb, 0.0, lay.wheel_radius_mm), "#8b95a8", 16.0),
-        Marker("front_axle", "Front axle", (half_wb, 0.0, lay.wheel_radius_mm), "#8b95a8", 16.0),
+        Marker(
+            "cg_total",
+            "Center of gravity (mass budget sum)",
+            (mass.cg_x_mm, mass.cg_y_mm, mass.cg_z_mm),
+            "#fbbf24",
+            22.0,
+        ),
+        Marker(
+            "rear_axle",
+            "Rear axle (wheel centerline)",
+            (-half_wb, 0.0, lay.wheel_radius_mm),
+            "#8b95a8",
+            16.0,
+        ),
+        Marker(
+            "front_axle",
+            "Front axle (wheel centerline)",
+            (half_wb, 0.0, lay.wheel_radius_mm),
+            "#8b95a8",
+            16.0,
+        ),
     ]
 
     primitives: list[dict[str, Any]] = [asdict(p) for p in boxes] + [asdict(p) for p in cylinders]
@@ -191,8 +209,8 @@ def build_scene(spec: VehicleSpec) -> dict[str, Any]:
         "axes": {"x": "fore_aft", "y": "lateral", "z": "up"},
         "overlay_mode": "minimal",
         "note": (
-            "Default view: car shell only. Toggle packaging layers to see bay, engine fit, and tanks. "
-            "Overlays snap to the shell when loaded."
+            "Tanks: tunnel = center spine, underfloor = aft of cabin (YAML volumes). "
+            "CG = center of gravity from mass budget. Overlays align to shell when it loads."
         ),
         "layout_source": "derived_from_spec",
         "vehicle_shell": vehicle_shell,
