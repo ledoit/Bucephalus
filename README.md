@@ -50,3 +50,8 @@ Exit code `0` = all gates pass; `1` = at least one NO-GO (expected until you tun
 ## Menhir location
 
 `Menhir/Bucephalus` — standalone Python; init git here when you want version control.
+
+
+## License
+
+All Rights Reserved © Menhir Holdings
