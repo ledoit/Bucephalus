@@ -23,7 +23,7 @@ Feasibility math for a **transverse-mounted V10 hydrogen combustion** car with *
 ## Quick start
 
 ```bash
-cd Menhir/Bucephalus
+cd Bucephalus
 python -m venv .venv
 source .venv/Scripts/activate   # Windows Git Bash
 pip install -r requirements.txt pytest
@@ -47,11 +47,11 @@ Exit code `0` = all gates pass; `1` = at least one NO-GO (expected until you tun
 3. Weigh subsystems on scales → replace placeholder `mass_lines`
 4. Export gate failures as dimensioned constraints for your CAD team
 
-## Menhir location
+## Location
 
-`Menhir/Bucephalus` — standalone Python; init git here when you want version control.
+`personal/Stonehenge/Car/Bucephalus` — standalone Python.
 
 
 ## License
 
-All Rights Reserved © Menhir Holdings
+All Rights Reserved © Philippe Ledoit

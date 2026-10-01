@@ -14,9 +14,15 @@ Packaging, H2 storage mass, mass budget, and feasibility gates only. Do not add 
 ## Commands
 
 ```bash
-pip install -r requirements.txt pytest
+pip install -e .
 python -m bucephalus config/bucephalus_v0.yaml
+python -m bucephalus moodboard list
+python -m bucephalus moodboard optimize --write-spec config/bucephalus_optimized.yaml
+python -m bucephalus moodboard blend-mesh --use-optimized
+streamlit run bucephalus/ui/app.py
 pytest
 ```
+
+Mood board: `config/moodboard.yaml` (user weights) + `config/catalog.yaml` (reference coeffs; optional GLB in `meshes/`). Interpolation is coefficient-space weighted blending, not vertex morphing.
 
 *Last updated: 2026-05-25*
